@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { BootScreen } from '@/components/BootScreen';
 
 export default function HomeLandingPage() {
+  const [isBooting, setIsBooting] = useState(true);
   const logoRef = useRef<HTMLHeadingElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const glassCardRef = useRef<HTMLDivElement>(null);
@@ -160,7 +162,11 @@ export default function HomeLandingPage() {
         cancelAnimationFrame(animId);
       };
     }
-  }, []);
+  }, [isBooting]);
+
+  if (isBooting) {
+    return <BootScreen title="SOLE_AGENT OPERATING SYSTEM v1.0.0" onComplete={() => setIsBooting(false)} />;
+  }
 
   return (
     <div className="landing-page-body">
@@ -513,7 +519,7 @@ export default function HomeLandingPage() {
 
       <main className="landing-hero-content">
         <h1 ref={titleRef} className="landing-hero-title">
-          Apply Now to be part <br /> of the closed beta
+          Start Your Interview <br /> Experience
         </h1>
         <a ref={btnRef} href="/interview" className="landing-hero-btn" style={{ textDecoration: 'none' }}>
           <span className="btn-text">Start the Interview</span>

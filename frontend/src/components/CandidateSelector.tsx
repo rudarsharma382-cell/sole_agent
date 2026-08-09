@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Search, UserCheck, Flame, CheckCircle2, AlertTriangle, ArrowRight, Award, Shield, Cpu, BookOpen } from 'lucide-react';
-import { motion, useSpring, useMotionValue, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Candidate } from '@/lib/types';
 import candidatesData from '@/data/candidates.json';
 
@@ -41,68 +41,36 @@ interface TiltCardProps {
 }
 
 const TiltCard: React.FC<TiltCardProps> = ({ children, onClick, variants }) => {
-  const cardRef = React.useRef<HTMLDivElement>(null);
-
-  // Raw mouse coordinates relative to card center
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  // Spring physics for buttery motion
-  const springConfig = { stiffness: 300, damping: 20 };
-  const x = useSpring(useTransform(mouseX, [-0.5, 0.5], [-12, 12]), springConfig);
-  const y = useSpring(useTransform(mouseY, [-0.5, 0.5], [-12, 12]), springConfig);
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), springConfig);
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), springConfig);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = cardRef.current;
-    if (!card) return;
-
-    const rect = card.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-
-    // Calculate normalized cursor offsets from center (-0.5 to 0.5)
-    const normalizedX = (e.clientX - rect.left) / width - 0.5;
-    const normalizedY = (e.clientY - rect.top) / height - 0.5;
-
-    mouseX.set(normalizedX);
-    mouseY.set(normalizedY);
-  };
-
-  const handleMouseLeave = () => {
-    mouseX.set(0);
-    mouseY.set(0);
-  };
-
   return (
     <motion.div
-      ref={cardRef}
       onClick={onClick}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
       variants={variants}
-      style={{
-        x,
-        y,
-        rotateX,
-        rotateY,
-        transformStyle: 'preserve-3d',
-        perspective: 1000,
-      }}
       whileHover={{
-        scale: 1.05,
-        boxShadow: '0 25px 50px -12px rgba(0, 240, 255, 0.25)',
+        y: -8,
+        scale: 1.015,
+        boxShadow: '0 25px 40px -15px rgba(0, 240, 255, 0.25)',
+        borderColor: 'rgba(0, 240, 255, 0.4)',
       }}
       whileTap={{ scale: 0.98 }}
-      className="group cursor-pointer relative bg-white/60 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800/80 backdrop-blur-md rounded-2xl p-6 transition-all duration-300 hover:border-blue-500/50 dark:hover:border-cyan-500/50 flex flex-col justify-between overflow-hidden"
+      className="group cursor-pointer relative bg-white/70 dark:bg-slate-900/40 border border-slate-200/80 dark:border-slate-800/80 backdrop-blur-md rounded-2xl p-6 transition-colors duration-300 flex flex-col justify-between overflow-hidden"
     >
-      {/* Glow overlays */}
-      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-500/0 via-blue-500/0 to-blue-500/5 dark:to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/25 dark:via-cyan-500/35 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none" />
+      {/* Sci-fi Dot Matrix Pattern background */}
+      <div className="absolute inset-0 bg-[radial-gradient(rgba(0,240,255,0.03)_1px,transparent_0)] bg-[size:10px_10px] pointer-events-none group-hover:bg-[radial-gradient(rgba(0,240,255,0.06)_1px,transparent_0)] transition-colors duration-500" />
+
+      {/* Cyber Corner Tech Brackets */}
+      <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-slate-300/40 dark:border-slate-800/60 group-hover:border-cyan-400/80 transition-colors duration-300" />
+      <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-slate-300/40 dark:border-slate-800/60 group-hover:border-cyan-400/80 transition-colors duration-300" />
+      <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-slate-300/40 dark:border-slate-800/60 group-hover:border-cyan-400/80 transition-colors duration-300" />
+      <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-slate-300/40 dark:border-slate-800/60 group-hover:border-cyan-400/80 transition-colors duration-300" />
+
+      {/* Ambient hover glow behind the card */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-br from-blue-500/0 via-cyan-500/0 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       
-      {/* 3D Parallax offset wrapper */}
-      <div style={{ transform: 'translateZ(24px)', transformStyle: 'preserve-3d' }} className="h-full flex flex-col justify-between">
+      {/* High-speed sheen/shimmer sweep effect */}
+      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent transition-transform duration-1000 ease-out pointer-events-none" />
+
+      {/* Content wrapper */}
+      <div className="h-full flex flex-col justify-between relative z-10">
         {children}
       </div>
     </motion.div>
@@ -204,46 +172,52 @@ export const CandidateSelector: React.FC<CandidateSelectorProps> = ({ onSelectCa
             >
               <div className="space-y-4">
                 {/* Header info */}
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                      {candidate.member.id}
-                    </span>
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors truncate">
+                    <div className="flex items-center space-x-1.5 mb-1.5">
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-500"></span>
+                      </span>
+                      <span className="text-[10px] font-mono text-slate-400 dark:text-slate-550 uppercase tracking-widest">
+                        {candidate.member.id}
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition-colors duration-300 truncate">
                       {candidate.member.name}
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{candidate.member.jobRole}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-455 mt-0.5 font-medium">{candidate.member.jobRole}</p>
                   </div>
-                  <span className={`px-2.5 py-1 text-[10px] font-mono font-semibold rounded-full border shrink-0 ${tag.color}`}>
+                  <span className={`px-2.5 py-1 text-[10px] font-mono font-bold rounded border shrink-0 ${tag.color} shadow-sm`}>
                     {tag.label}
                   </span>
                 </div>
 
-                {/* Signals Grid */}
-                <div className="grid grid-cols-3 gap-2 py-3 px-3 rounded-xl bg-white/5 dark:bg-slate-950/40 border border-white/5 dark:border-slate-850 text-center font-mono">
-                  <div>
-                    <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase">EXPR</div>
-                    <div className="text-sm font-semibold text-slate-800 dark:text-slate-200">{candidate.member.yearsExperience} yrs</div>
+                {/* Signals Grid (with Dividers & Hover FX) */}
+                <div className="grid grid-cols-3 gap-0 py-3 rounded-xl bg-slate-50/50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800/80 text-center font-mono divide-x divide-slate-150 dark:divide-slate-800/80">
+                  <div className="px-2">
+                    <div className="text-[9px] text-slate-400 dark:text-slate-550 uppercase tracking-wider">EXPR</div>
+                    <div className="text-sm font-bold text-slate-700 dark:text-slate-300 group-hover:text-slate-950 dark:group-hover:text-white transition-colors duration-300">{candidate.member.yearsExperience} yrs</div>
                   </div>
-                  <div>
-                    <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase">MISSIONS</div>
-                    <div className="text-sm font-semibold text-blue-600 dark:text-cyan-400">{candidate.signals.missionsCompleted}/31</div>
+                  <div className="px-2">
+                    <div className="text-[9px] text-slate-400 dark:text-slate-550 uppercase tracking-wider">MISSIONS</div>
+                    <div className="text-sm font-bold text-blue-600 dark:text-cyan-400 group-hover:scale-105 group-hover:drop-shadow-[0_0_8px_rgba(6,182,212,0.4)] transition-all duration-300">{candidate.signals.missionsCompleted}/31</div>
                   </div>
-                  <div>
-                    <div className="text-[10px] text-slate-400 dark:text-slate-500 uppercase">1ST TRY</div>
-                    <div className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">{firstTryPct}%</div>
+                  <div className="px-2">
+                    <div className="text-[9px] text-slate-400 dark:text-slate-550 uppercase tracking-wider">1ST TRY</div>
+                    <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 group-hover:scale-105 group-hover:drop-shadow-[0_0_8px_rgba(16,185,129,0.4)] transition-all duration-300">{firstTryPct}%</div>
                   </div>
                 </div>
 
                 {/* Progress bar */}
                 <div className="space-y-1.5">
-                  <div className="flex justify-between text-xs font-mono text-slate-500 dark:text-slate-400">
+                  <div className="flex justify-between text-xs font-mono text-slate-500 dark:text-slate-455">
                     <span>Missions Completed</span>
                     <span className="font-semibold">{Math.round((candidate.signals.missionsCompleted / 31) * 100)}%</span>
                   </div>
-                  <div className="w-full h-1.5 bg-white/10 dark:bg-slate-950/50 border border-white/5 dark:border-slate-850/50 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-slate-100 dark:bg-slate-950/60 border border-slate-200/50 dark:border-slate-900 rounded-full overflow-hidden p-[1px]">
                     <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 dark:from-cyan-500 dark:to-indigo-500 rounded-full transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 rounded-full transition-all duration-500 group-hover:shadow-[0_0_8px_rgba(6,182,212,0.6)]"
                       style={{ width: `${(candidate.signals.missionsCompleted / 31) * 100}%` }}
                     />
                   </div>
@@ -251,13 +225,13 @@ export const CandidateSelector: React.FC<CandidateSelectorProps> = ({ onSelectCa
               </div>
 
               {/* Card Footer Action */}
-              <div className="pt-4 mt-4 border-t border-white/10 dark:border-slate-800/40 flex items-center justify-between">
-                <span className="text-xs text-slate-500 dark:text-slate-400 font-mono group-hover:text-slate-700 dark:group-hover:text-slate-200 truncate pr-2">
+              <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/40 flex items-center justify-between">
+                <span className="text-xs text-slate-500 dark:text-slate-455 font-mono group-hover:text-slate-700 dark:group-hover:text-slate-350 truncate pr-2">
                   {candidate.member.education}
                 </span>
-                <div className="flex items-center space-x-1 text-xs font-mono font-medium text-blue-600 dark:text-cyan-400 group-hover:translate-x-1 transition-transform shrink-0">
-                  <span>INSPECT DNA</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                <div className="flex items-center space-x-1.5 text-xs font-mono font-bold text-blue-600 dark:text-cyan-400 group-hover:text-blue-500 dark:group-hover:text-cyan-300 shrink-0">
+                  <span className="group-hover:tracking-widest transition-all duration-300">INSPECT DNA</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-300" />
                 </div>
               </div>
             </TiltCard>

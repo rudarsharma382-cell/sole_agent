@@ -4,10 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
-import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 
 export const StarfieldBackground: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -41,8 +38,6 @@ export const StarfieldBackground: React.FC = () => {
       parallax: 0.6,
     };
 
-    const LAYERS = { NONE: 0, TORUS_SCENE: 1, BLOOM_SCENE: 2, ENTIRE_SCENE: 3 };
-
     const hexToVec3 = (hex: string) => {
       const n = parseInt(hex.slice(1), 16);
       return new THREE.Vector3(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
@@ -55,17 +50,12 @@ export const StarfieldBackground: React.FC = () => {
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 80);
     camera.position.set(0, 0, 5);
-    camera.layers.enable(LAYERS.TORUS_SCENE);
-    camera.layers.enable(LAYERS.BLOOM_SCENE);
-    camera.layers.enable(LAYERS.ENTIRE_SCENE);
     scene.add(camera);
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Renderer - Capped pixel ratio and disabled shadows for massive performance boost
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.VSMShadowMap;
 
     // Geometry
     const count = 4200;
@@ -167,32 +157,14 @@ export const StarfieldBackground: React.FC = () => {
     group.add(points);
     scene.add(group);
 
-    points.layers.set(LAYERS.ENTIRE_SCENE);
-
     // Composers
     const renderScene = new RenderPass(scene, camera);
 
-    const torusComposer = new EffectComposer(renderer);
-    torusComposer.renderToScreen = false;
-    torusComposer.addPass(renderScene);
-    torusComposer.addPass(new ShaderPass(GammaCorrectionShader));
-    torusComposer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.22, 0.2, 0));
-    torusComposer.addPass(new ShaderPass(CopyShader));
-
-    const bloomComposer = new EffectComposer(renderer);
-    bloomComposer.renderToScreen = false;
-    bloomComposer.addPass(renderScene);
-    bloomComposer.addPass(new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 0.4, 0.55, 0));
-    bloomComposer.addPass(new ShaderPass(GammaCorrectionShader));
-
-    // Final Composite Pass Shader
+    // Final Composite Pass Shader (Simplified to render background flame and points directly)
     const FinalPassShader = {
       uniforms: {
         iTime: { value: 0 },
         tDiffuse: { value: null },
-        torusTexture: { value: null },
-        bloomTexture: { value: null },
-        haloTexture: { value: null },
         uBg: { value: hexToVec3(CONFIG.bgColor) },
         uFlameA: { value: hexToVec3(CONFIG.flameColor) },
         uFlameB: { value: hexToVec3(CONFIG.flameColor2) },
@@ -208,9 +180,6 @@ export const StarfieldBackground: React.FC = () => {
       fragmentShader: `
         uniform float iTime;
         uniform sampler2D tDiffuse;
-        uniform sampler2D bloomTexture;
-        uniform sampler2D torusTexture;
-        uniform sampler2D haloTexture;
         uniform vec3 uBg;
         uniform vec3 uFlameA;
         uniform vec3 uFlameB;
@@ -239,13 +208,9 @@ export const StarfieldBackground: React.FC = () => {
           float md = smoothstep(-0.7, 1.0, -uv.y * uv.x);
           flame *= md * md;
           vec3 bg = uBg * (1.0 - 0.4 * length(uv));
-          vec3 halo = texture2D(haloTexture, vUv).xyz;
           gl_FragColor = vec4(
             bg + flame * uFlameAmt +
-            texture2D(bloomTexture, vUv).xyz +
-            texture2D(torusTexture, vUv).xyz +
-            texture2D(tDiffuse, vUv).xyz +
-            halo,
+            texture2D(tDiffuse, vUv).xyz,
             1.0
           );
         }
@@ -253,8 +218,6 @@ export const StarfieldBackground: React.FC = () => {
     };
 
     const finalPass = new ShaderPass(FinalPassShader);
-    finalPass.uniforms.bloomTexture.value = bloomComposer.renderTarget1.texture;
-    finalPass.uniforms.torusTexture.value = torusComposer.renderTarget1.texture;
 
     const finalComposer = new EffectComposer(renderer);
     finalComposer.addPass(renderScene);
@@ -360,13 +323,6 @@ export const StarfieldBackground: React.FC = () => {
       finalPass.uniforms.iTime.value = t;
       updatePointer();
 
-      camera.layers.set(LAYERS.TORUS_SCENE);
-      torusComposer.render();
-
-      camera.layers.set(LAYERS.BLOOM_SCENE);
-      bloomComposer.render();
-
-      camera.layers.set(LAYERS.ENTIRE_SCENE);
       finalComposer.render();
     };
 
@@ -381,8 +337,6 @@ export const StarfieldBackground: React.FC = () => {
       camera.updateProjectionMatrix();
 
       renderer.setSize(width, height);
-      torusComposer.setSize(width, height);
-      bloomComposer.setSize(width, height);
       finalComposer.setSize(width, height);
       handleScroll();
     };
