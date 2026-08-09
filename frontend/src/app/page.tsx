@@ -536,13 +536,6 @@ export default function HomeLandingPage() {
         <div className="landing-footer-bottom">
           <div className="landing-footer-socials"></div>
 
-          <nav className="landing-footer-links">
-            <a href="#about" className="landing-footer-link">About</a>
-            <a href="#features" className="landing-footer-link">Features</a>
-            <a href="#pricing" className="landing-footer-link">Pricing</a>
-            <a href="#contact" className="landing-footer-link">Contact</a>
-          </nav>
-
           <div className="landing-footer-copyright">
             © 2026 Sole Agent
           </div>
