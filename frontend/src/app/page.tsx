@@ -519,7 +519,7 @@ export default function HomeLandingPage() {
 
       <main className="landing-hero-content">
         <h1 ref={titleRef} className="landing-hero-title">
-          Start Your Interview <br /> Experience
+          Apply Now to be part <br /> of the closed beta
         </h1>
         <a ref={btnRef} href="/interview" className="landing-hero-btn" style={{ textDecoration: 'none' }}>
           <span className="btn-text">Start the Interview</span>
@@ -535,6 +535,13 @@ export default function HomeLandingPage() {
 
         <div className="landing-footer-bottom">
           <div className="landing-footer-socials"></div>
+
+          <nav className="landing-footer-links">
+            <a href="#about" className="landing-footer-link">About</a>
+            <a href="#features" className="landing-footer-link">Features</a>
+            <a href="#pricing" className="landing-footer-link">Pricing</a>
+            <a href="#contact" className="landing-footer-link">Contact</a>
+          </nav>
 
           <div className="landing-footer-copyright">
             © 2026 Sole Agent
