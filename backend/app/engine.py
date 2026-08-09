@@ -15,4 +15,4 @@ client = OpenAI(
 )
 
 def get_model_name():
-    return os.getenv("MODEL_NAME", "nvidia/nemotron-3-ultra:free")
+    return os.getenv("MODEL_NAME", "meta-llama/llama-3.1-8b-instruct")

@@ -39,8 +39,8 @@ class Settings(BaseSettings):
     deepseek_model: str = "deepseek/deepseek-chat"
 
     openrouter_api_key: str = ""
-    model_name: str = "nvidia/nemotron-3-ultra:free"
-    fallback_model_name: str = "deepseek/deepseek-r1:free"
+    model_name: str = "meta-llama/llama-3.1-8b-instruct"
+    fallback_model_name: str = "deepseek/deepseek-chat"
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
 
 

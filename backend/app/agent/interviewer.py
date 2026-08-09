@@ -221,6 +221,7 @@ class InterviewAgent:
                         model=get_model_name(),
                         messages=messages,
                         temperature=0.4,
+                        max_tokens=1500,
                         response_format={"type": "json_object"}
                     )
                 except Exception as json_mode_exc:
@@ -230,7 +231,8 @@ class InterviewAgent:
                         response = openai_client.chat.completions.create(
                             model=get_model_name(),
                             messages=messages,
-                            temperature=0.4
+                            temperature=0.4,
+                            max_tokens=1500
                         )
                     else:
                         raise json_mode_exc
