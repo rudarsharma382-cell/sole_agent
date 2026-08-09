@@ -12,6 +12,19 @@ def _env_files() -> tuple[str, ...]:
     return tuple(str(p) for p in candidates if p.exists())
 
 
+def _find_file(filename: str) -> Path:
+    # Prefer REPO_ROOT if file exists
+    if (REPO_ROOT / filename).exists():
+        return REPO_ROOT / filename
+    # Fall back to BACKEND_ROOT (for Vercel/standalone deployment)
+    if (BACKEND_ROOT / filename).exists():
+        return BACKEND_ROOT / filename
+    # Fall back to app folder
+    if (BACKEND_ROOT / "app" / filename).exists():
+        return BACKEND_ROOT / "app" / filename
+    return REPO_ROOT / filename
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=_env_files() or (str(BACKEND_ROOT / ".env"),),
@@ -31,8 +44,8 @@ class Settings(BaseSettings):
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
 
 
-    curriculum_path: Path = REPO_ROOT / "curriculum.json"
-    candidates_path: Path = REPO_ROOT / "candidates.json"
+    curriculum_path: Path = _find_file("curriculum.json")
+    candidates_path: Path = _find_file("candidates.json")
     chroma_dir: Path = BACKEND_ROOT / ".chroma"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
 
@@ -42,3 +55,4 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+

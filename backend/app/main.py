@@ -72,6 +72,16 @@ async def interview_error_handler(_: Request, exc: InterviewError) -> JSONRespon
     return JSONResponse(status_code=exc.status, content={"error": exc.to_payload()})
 
 
+@app.get("/")
+def read_root() -> dict[str, str]:
+    """Returns a welcome message indicating the backend is active."""
+    return {
+        "message": "SOLE_AGENT FastAPI Backend is active",
+        "health_check": "/health",
+        "docs": "/docs"
+    }
+
+
 @app.get("/health")
 def health() -> dict[str, Any]:
     """Reports whether both dependencies of an interview are usable."""
